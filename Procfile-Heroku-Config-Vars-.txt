@@ -1,0 +1,11 @@
+app-1-dnrahmath
+
+APP_RDBMS_DB    backendtaapp
+APP_RDBMS_DB_PORT    11000
+APP_RDBMS_HOST    0.tcp.ap.ngrok.io
+APP_RDBMS_PASSWORD    herlambang66
+APP_RDBMS_USER    dnrahmath
+
+
+
+APP_SECRET    53cR37
