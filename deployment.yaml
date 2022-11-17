@@ -4,67 +4,53 @@ metadata:
   name: production
 
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: backendtaapp
-  namespace: production
-  labels:
-    app: backendtaapp
-spec:
-  ports:
-  - port: 80
-    targetPort: 8081
-    protocol: TCP
-    name: http
-  selector:
-    app: backendtaapp
-  type: LoadBalancer
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backendtaapp
   namespace: production
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: backendtaapp
   strategy:
     type: RollingUpdate
+  replicas: 1
   template:
     metadata:
       labels:
         app: backendtaapp
+        env: development
     spec:
       containers:
       - name: backendtaapp
         image:  asia.gcr.io/$PROJECT_ID/production/backendtaapp:$SHORT_SHA
         imagePullPolicy: Always
         ports:
-        - containerPort: 8081
-          name: backendtaapp
-        resources:
-          requests:
-            cpu: 50m
-      # [START esp]
-      - name: esp
-        image: gcr.io/endpoints-release/endpoints-runtime:1
-        args: [
-          "--http_port", "8081",
-          "--backend", "127.0.0.1:8080",
-          "--service", "SERVICE_NAME",
-          "--rollout_strategy", "managed",
-        ]
-      # [END esp]
-        ports:
-          - containerPort: 8081
-      - name: echo
-        image: gcr.io/google-samples/echo-node:1.0
-        ports:
-          - containerPort: 8080
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: NODE_ENV
+          value: "development"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backendtaapp
+  namespace: production
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: backendtaapp
 
 ---
 apiVersion: autoscaling/v1
@@ -74,7 +60,7 @@ metadata:
   namespace: production
 spec:
   maxReplicas: 3
-  minReplicas: 1
+  minReplicas: 2
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
@@ -102,7 +88,7 @@ spec:
             service:
               name: backendtaapp
               port: 
-                number: 8081
+                number: 8080
 
 ---
 apiVersion: networking.gke.io/v1beta2

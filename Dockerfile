@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:lts-slim
 
 #create new directory and copas all file
 RUN mkdir -p /usr/src/app
@@ -16,12 +16,15 @@ RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production
 
+# Install pm2 *globally* so we can run our application
+RUN npm i -g pm2
+
 # Bundle app source
-COPY . .
+#COPY . .
 
 EXPOSE 8080
-CMD [ "node", "server.js" ]
-
+#CMD [ "node", "server.js" ]
+CMD ["pm2", "start", "process.json", "--no-daemon"]
 
 
 
