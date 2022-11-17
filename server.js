@@ -9,10 +9,13 @@ console.log(`------------------------------------------------------`);
 
 global.__root = __dirname + '/'; //__dirname menunjukan lokasi file dan titik file ini -> lalu dijadikan root
 
+
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const express = require("express");
 const verifyJWT = require('./app/aconfig/middleware/verifyJWT');
+
+const { PORT = 8080, SALT = '#ha43-1', LOG_LEVEL, NODE_ENV } = process.env;
 
 const app = express();
 

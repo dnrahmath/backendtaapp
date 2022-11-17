@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:lts
 
 #create new directory and copas all file
 RUN mkdir -p /usr/src/app
