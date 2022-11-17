@@ -23,7 +23,7 @@ steps:
   - --filename=deployment.yaml
   - --cluster=kubernetes-cluster-1
   - --location=asia-southeast2-a
-  timeout: 900s
+  timeout: 4500s
 
 # Global Timeout
-timeout: '4800s'
+timeout: '6300s'
