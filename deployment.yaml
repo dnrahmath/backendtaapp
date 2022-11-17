@@ -4,8 +4,6 @@ metadata:
   name: production
 
 ---
-
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,13 +12,14 @@ metadata:
   labels:
     app: backendtaapp
 spec:
-  selector:
-    app: backendtaapp
   ports:
   - port: 80
+    targetPort: 8081
+    protocol: TCP
     name: http
-    targetPort: 80
-  type: NodePort
+  selector:
+    app: backendtaapp
+  type: LoadBalancer
 
 ---
 apiVersion: apps/v1
@@ -29,12 +28,13 @@ metadata:
   name: backendtaapp
   namespace: production
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: backendtaapp
   strategy:
     type: RollingUpdate
-  template: #Template for container
+  template:
     metadata:
       labels:
         app: backendtaapp
@@ -44,11 +44,27 @@ spec:
         image:  asia.gcr.io/$PROJECT_ID/production/backendtaapp:$SHORT_SHA
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 8081
           name: backendtaapp
         resources:
           requests:
             cpu: 50m
+      # [START esp]
+      - name: esp
+        image: gcr.io/endpoints-release/endpoints-runtime:1
+        args: [
+          "--http_port", "8081",
+          "--backend", "127.0.0.1:8080",
+          "--service", "SERVICE_NAME",
+          "--rollout_strategy", "managed",
+        ]
+      # [END esp]
+        ports:
+          - containerPort: 8081
+      - name: echo
+        image: gcr.io/google-samples/echo-node:1.0
+        ports:
+          - containerPort: 8080
 
 ---
 apiVersion: autoscaling/v1
@@ -86,7 +102,7 @@ spec:
             service:
               name: backendtaapp
               port: 
-                number: 80
+                number: 8081
 
 ---
 apiVersion: networking.gke.io/v1beta2

@@ -84,8 +84,8 @@ app.use(multerFile);
 
 
 console.log(process.env.APP_SECRET); //didapatkan dari set manual var heroku
-const port = process.env.PORT || 3000;
-const url = process.env.ROOT_URL || "http://localhost/";
+const port = process.env.PORT || 8080;
+//const url = process.env.ROOT_URL || "http://localhost/";
 
 
 //---------------------------------------------------------------------------------------
