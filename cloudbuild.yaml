@@ -26,4 +26,4 @@ steps:
   timeout: 900s
 
 # Global Timeout
-timeout: '3600s'
+timeout: '4800s'
