@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backendtaapp
+  namespace: production
+  labels:
+    app: backendtaapp
+spec:
+  selector:
+    app: backendtaapp
+  ports:
+  - port: 80
+    name: http
+    targetPort: 80
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backendtaapp
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: backendtaapp
+  strategy:
+    type: RollingUpdate
+  template: #Template for container
+    metadata:
+      labels:
+        app: backendtaapp
+    spec:
+      containers:
+      - name: backendtaapp
+        image:  asia.gcr.io/$PROJECT_ID/production/backendtaapp:$SHORT_SHA
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: backendtaapp
+        resources:
+          requests:
+            cpu: 50m
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backendtaapp
+  namespace: production
+spec:
+  maxReplicas: 3
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backendtaapp
+  targetCPUUtilizationPercentage: 100
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backendtaapp
+  namespace: production
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: kubernetes-ip
+    kubernetes.io/ingress.allow-http: "false"
+    networking.gke.io/managed-certificates: backendtaapp
+spec:
+  rules:
+    - host: satutitikempat.xyz
+      http:
+        paths:
+        - path: /*
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: backendtaapp
+              port: 
+                number: 80
+
+---
+apiVersion: networking.gke.io/v1beta2
+kind: ManagedCertificate
+metadata:
+  name: backendtaapp
+  namespace: production
+spec:
+  domains:
+    - satutitikempat.xyz
