@@ -32,7 +32,7 @@ spec:
         image: gcr.io/my-project/foo-service:3adfa3e
         name: foo-web
         ports:
-        - containerPort: 3001
+        - containerPort: 3000
           protocol: TCP
         readinessProbe:
           failureThreshold: 3
