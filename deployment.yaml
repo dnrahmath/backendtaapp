@@ -4,7 +4,7 @@ metadata:
   name: production
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backendtaapp
@@ -57,7 +57,7 @@ spec:
   maxReplicas: 3
   minReplicas: 2
   scaleTargetRef:
-    apiVersion: apps/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: backendtaapp
   targetCPUUtilizationPercentage: 100
