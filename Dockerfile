@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:latest
 
 #create new directory and copas all file
 RUN mkdir -p /usr/src/app
@@ -12,19 +12,21 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
+#RUN npm install
+RUN npm install --only=production && npm install -g pm2
+
 # If you are building your code for production
 # RUN npm ci --only=production
 
 # Install pm2 *globally* so we can run our application
-RUN npm i -g pm2
+#RUN npm i -g pm2
 
 # Bundle app source
 #COPY . .
 
-EXPOSE 8080
+EXPOSE 3000
 #CMD [ "node", "server.js" ]
-CMD ["pm2", "start", "process.json", "--no-daemon"]
+CMD [ "pm2-runtime", "start", "server.js" ]
 
 
 

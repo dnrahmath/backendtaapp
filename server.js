@@ -15,7 +15,7 @@ const multer = require('multer');
 const express = require("express");
 const verifyJWT = require('./app/aconfig/middleware/verifyJWT');
 
-const { PORT = 8080, SALT = '#ha43-1', LOG_LEVEL, NODE_ENV } = process.env;
+const { PORT = 3000, SALT = '#ha43-1', LOG_LEVEL, NODE_ENV } = process.env;
 
 const app = express();
 
@@ -87,7 +87,7 @@ app.use(multerFile);
 
 
 console.log(process.env.APP_SECRET); //didapatkan dari set manual var heroku
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 //const url = process.env.ROOT_URL || "http://localhost/";
 
 

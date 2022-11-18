@@ -4,7 +4,7 @@ metadata:
   name: production
 
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: backendtaapp
@@ -15,7 +15,7 @@ spec:
       app: backendtaapp
   strategy:
     type: RollingUpdate
-  replicas: 1
+  replicas: 1 # number of pods
   template:
     metadata:
       labels:
@@ -27,14 +27,8 @@ spec:
         image:  asia.gcr.io/$PROJECT_ID/production/backendtaapp:$SHORT_SHA
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
-        env:
-        - name: PORT
-          value: "8080"
-        - name: LOG_LEVEL
-          value: "info"
-        - name: NODE_ENV
-          value: "development"
+          - containerPort: 3000
+            protocol: TCP
 
 ---
 apiVersion: v1
@@ -43,29 +37,35 @@ metadata:
   name: backendtaapp
   namespace: production
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
   selector:
     app: backendtaapp
 
 ---
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: backendtaapp
+  name: backendtaapp-hpa
   namespace: production
+  labels:
+    app: backendtaapp-deployment
 spec:
   maxReplicas: 3
   minReplicas: 2
   scaleTargetRef:
-    apiVersion: apps/v1
+    apiVersion: apps/v1beta1
     kind: Deployment
     name: backendtaapp
   targetCPUUtilizationPercentage: 100
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 80
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -88,7 +88,7 @@ spec:
             service:
               name: backendtaapp
               port: 
-                number: 8080
+                number: 3000
 
 ---
 apiVersion: networking.gke.io/v1beta2
