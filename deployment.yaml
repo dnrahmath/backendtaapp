@@ -4,6 +4,21 @@ metadata:
   name: production
 
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backendtaapp
+  namespace: production
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  selector:
+    app: backendtaapp
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,26 +42,14 @@ spec:
         image:  asia.gcr.io/$PROJECT_ID/production/backendtaapp:$SHORT_SHA
         imagePullPolicy: Always
         ports:
-          - containerPort: 3000
-            protocol: TCP
+        - containerPort: 3000
+          name: backendtaapp
+        resources:
+          requests:
+            cpu: 50m
 
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: backendtaapp
-  namespace: production
-spec:
-  type: NodePort
-  ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
-  selector:
-    app: backendtaapp
-
----
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: backendtaapp-hpa
@@ -61,11 +64,6 @@ spec:
     kind: Deployment
     name: backendtaapp
   targetCPUUtilizationPercentage: 100
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        targetAverageUtilization: 80
 
 ---
 apiVersion: networking.k8s.io/v1
